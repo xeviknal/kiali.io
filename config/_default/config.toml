@@ -1,7 +1,6 @@
 languageCode = "en-us"
 title = "Kiali"
 theme = "kiali"
-baseURL = "https://kiali.io"
 
 [params]
     custom_css = [
