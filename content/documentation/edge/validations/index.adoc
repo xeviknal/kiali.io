@@ -131,6 +131,48 @@ https://istio.io/docs/reference/config/security/authorization-policy[Authorizati
 https://istio.io/docs/reference/config/security/authorization-policy/#Operation[Definition of the operations field, window="_blank"] +
 https://istio.io/docs/ops/deployment/requirements[Service association requirement, window="_blank"]
 
+'''
+
+=== KIA0105 - This field requires mTLS to be enabled
+
+AuthorizationPolicy enables access control on workloads. Each policy effects only to a group of request going to a specific destination. For instance, allow all the request going from a specific service account (principal).
+In some cases, AuthorizationPolicy needs to use information provided only when mTLS is enabled for its workloads. This is because the mTLS provided strong identity to all the enabled workloads.
+The following fields require mTLS to be enabled:
+
+----
+- from.source.namespaces
+- from.source.notNamespaces
+- from.source.principals
+- from.source.notPrincipals
+- when.key = source.principal
+- when.key = source.namespace
+- when.key = connection.sni
+----
+
+The present validation points out those rules that uses fields that require mTLS to be enabled but mTLS is not enabled for the workloads underneath.
+
+==== Resolution
+
+Add, modify or delete all the PeerAuthentication and Destination Rules to allow mTLS (`STRICT` or `PERMISSIVE`) to the workloads under the AuthorizationPolicy.
+
+==== Severity
+
+icon:exclamation-triangle[] Error
+
+==== Example
+
+[source, yaml]
+----
+include::/data/files/validation_examples/805.yaml[]
+----
+
+==== See Also
+
+https://github.com/kiali/kiali/blob/master/business/checkers/authorization/mtls_enabled_checker.go[Validator source code, window="_blank"] +
+https://istio.io/docs/reference/config/security/authorization-policy[AuthorizationPolicy documentation, window="_blank"] +
+https://istio.io/latest/docs/reference/config/security/authorization-policy/#Source[Source fields, window="_blank"] +
+https://istio.io/latest/docs/reference/config/security/conditions/[When conditions, window="_blank"]
+
 [#destinationrules]
 == Destination rules
 

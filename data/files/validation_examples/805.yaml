@@ -1,0 +1,40 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: policy-0
+  namespace: bookinfo
+spec:
+  selector:
+    matchLabels:
+      app: productpage
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/default/sa/bookinfo-productpage"] # Needs mtls to be enabled
+            namespaces: ["default"] # Needs mtls to be enabled
+      to:
+        - operation:
+            methods: ["GET"]
+      when:
+      - key: source.namespace # Needs mtls to be enabled
+        values: ["bookinfo"]
+---
+apiVersion: "security.istio.io/v1beta1"
+kind: "PeerAuthentication"
+metadata:
+  name: "disable-mtls"
+  namespace: "bookinfo"
+spec:
+  mtls:
+    mode: DISABLE
+---
+apiVersion: "networking.istio.io/v1alpha3"
+kind: "DestinationRule"
+metadata:
+  name: "disable-mtls"
+  namespace: bookinfo
+spec:
+  host: "*.bookinfo.svc.cluster.local"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
